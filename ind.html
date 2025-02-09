@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Virtual Assistant</title>
+    <link rel="shortcut icon" href="ai.png" type="image/x-icon">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            width: 100%;
+            height: 100%;
+            background-color: black;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 30px;
+            flex-direction: column;
+        }
+
+        #logo {
+            width: 20vw;
+            height: 20dp;
+        }
+
+        h1 {
+            color: aliceblue;
+        }
+
+        #name {
+            color: red;
+            font-size: 50px;
+        }
+
+        #ai {
+            color: aqua;
+            font-size: 50px;
+        }
+
+        #voice {
+            width: 200px;
+            display: none;
+        }
+
+        #btn {
+            width: 30%;
+            background: linear-gradient(to right, rgb(0, 115, 255), rgb(255, 0, 0));
+            padding: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            font-size: 20px;
+            border-radius: 20px;
+            color: antiquewhite;
+            box-shadow: 2px 2px 10px rgb(0, 115, 255), 2px 2px 10px rgb(0, 115, 255);
+            border: none;
+            transition: 0.7s;
+        }
+
+        #btn:hover {
+            box-shadow: 2px 2px 20px rgb(0, 115, 255), 2px 2px 20px rgb(0, 115, 255);
+            letter-spacing: 2px;
+        }
+    </style>
+</head>
+<body>
+    <img src="ai.png" alt="logo" id="logo">
+    <h1>I'm <span id="name">Helena</span>, Your <span id="va">Virtual Assistant</span></h1>
+    <img src="voice.gif" alt="voice" id="voice">
+    <button id="btn"><img src="mic.svg" alt="mic"><span id="content">Click here to Talk to me</span></button>
+    <script src="script.js"></script>
+
+    <script>
+        let btn = document.querySelector("#btn");
+        let content = document.querySelector("#content");
+        let voice = document.querySelector("#voice");
+
+        function speak(text) {
+            let text_speak = new SpeechSynthesisUtterance(text);
+            text_speak.rate = 1;
+            text_speak.pitch = 1;
+            text_speak.volume = 1;
+            text_speak.lang = "en-GB";
+            window.speechSynthesis.speak(text_speak);
+        }
+
+        function wishMe() {
+            let day = new Date();
+            let hours = day.getHours();
+            if (hours >= 0 && hours < 12) {
+                speak("Good Morning Sir");
+            } else if (hours >= 12 && hours < 16) {
+                speak("Good Afternoon Sir");
+            } else {
+                speak("Good Evening Sir");
+            }
+        }
+
+        window.addEventListener('load', () => {
+            wishMe();
+        });
+
+        // Check for SpeechRecognition support
+        let SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (!SpeechRecognition) {
+            alert("Speech Recognition is not supported in this browser.");
+            return;
+        }
+
+        let recognition = new SpeechRecognition();
+        recognition.lang = "en-US";
+        recognition.continuous = true;
+
+        recognition.onresult = (event) => {
+            let currentIndex = event.resultIndex;
+            let transcript = event.results[currentIndex][0].transcript;
+            content.innerText = transcript;
+            takeCommand(transcript.toLowerCase());
+        };
+
+        btn.addEventListener("click", () => {
+            recognition.start();
+            btn.style.display = "none";
+            voice.style.display = "block";
+        });
+
+        function takeCommand(message) {
+            btn.style.display = "flex";
+            voice.style.display = "none";
+
+            if (message.includes("hello") || message.includes("hey")) {
+                speak("Hello Sir, what can I help you with?");
+            } else if (message.includes("how are you?")) {
+                speak("I am fine Sir. What can I help you with?");
+            } else if (message.includes("who are you?")) {
+                speak("I am Helena, your virtual assistant, created by Yasar.");
+            } else if (message.includes("open youtube")) {
+                speak("Opening YouTube...");
+                window.open("https://www.youtube.com/?gl=IN", "_blank");
+            } else if (message.includes("open graphic era website")) {
+                speak("Opening Graphic Era website...");
+                window.open("https://geu.ac.in/", "_blank");
+            } else if (message.includes("open google")) {
+                speak("Opening Google...");
+                window.open("https://www.google.co.in/", "_blank");
+            } else if (message.includes("open calculator")) {
+                speak("Opening calculator...");
+                window.open("calculator://");
+            } else if (message.includes("open whatsapp")) {
+                speak("Opening WhatsApp...");
+                window.open("whatsapp://");
+            } else if (message.includes("open image generator")) {
+                speak("Opening image generator...");
+                window.open("../image-generator/index.html", "_blank");
+            } else if (message.includes("time")) {
+                let time = new Date().toLocaleString(undefined, { hour: "numeric", minute: "numeric" });
+                speak(time);
+            } else if (message.includes("date")) {
+                let date = new Date().toLocaleString(undefined, { day: "numeric", month: "short" });
+                speak(date);
+            } else {
+                let finalText = "This is what I found on Google regarding " + message.replace("Helena", "") || message.replace("Helina", "");
+                speak(finalText);
+                window.open(`https://www.bing.com/search?q=${message.replace("Helena", "")}`, "_blank");
+            }
+        }
+    </script>
+</body>
+</html>
